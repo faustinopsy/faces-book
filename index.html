@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face-API.js Landing Page</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/w3.css">
+     </head>
+  <body>
+    <header>
+      <nav>
+        <ul>
+                <li><a href="#compara-imagens" id="compara-imagens-menu">Compara imagens</a></li>
+                <li><a href="#detectar-emocoes" id="detectar-emocoes-menu">Detectar emocoes</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+        <section id="detectar-emocoes" class="active">
+            <h2>Detectar emoções</h2>
+            <div id="detectar-emocoes-form">
+              <form>
+                               
+                <br><br>
+                <label class="switch">
+                    <input type="checkbox" id="start-camera-button">
+                    <span class="slider round"></span>
+                  </label>
+                  
+                  <label class="switch">
+                    <input type="checkbox" id="detect-emotions-button">
+                    <span class="slider round"></span>
+                  </label>
+                  
+                  <label class="switch">
+                    <input type="checkbox" id="detect-landmarks-button">
+                    <span class="slider round"></span>
+                  </label>
+                  
+                  <label class="switch">
+                    <input type="checkbox" id="detect-age-button">
+                    <span class="slider round"></span>
+                  </label>
+                  
+                  <label class="switch">
+                    <input type="checkbox" id="extract-points-button">
+                    <span class="slider round"></span>
+                  </label>
+                  
+                </form>
+       
+            
+                <div id="detectar-emocoes-idade"></div>
+                <div id="detectar-emocoes-results"></div>
+                <div id="pontos"></div>
+            </div>
+          </section>
+      <section id="compara-imagens" style="display:none">
+        <h2>Comparar imagens</h2>
+        <div class="row">
+            <div class="w3-row-padding" style="margin:0 -16px">
+              <div class="w3-third">
+              <div style="height:330px" class="w3-card w3-container  w3-margin-bottom">
+                <img src="img/avatar1.png" id="imagem1"  style="border-radius: 5px;width:250px">
+                          <canvas id="overlay" style="width:240px"/>
+              </div>
+              <input type="file" id="file1" class="form-control" onchange="imagem1()" >
+              </div>
+              <div class="w3-third">
+              <div style="height:330px" class="w3-card-2 w3-container w3-margin-bottom">
+                <button id="verificado" class="w3-button w3-teal w3-round-large" type="button" onclick="verificar() " 
+                style="visibility: false;" disabled> Verificar </button>
+              </div>
+              </div>
+              <div class="w3-third">
+              <div style="height:330px" class="w3-card-4 w3-container  w3-margin-bottom">
+                  <img src="img/avatar2.png" id="imagem2"  style="border-radius: 5px;width:250px">
+                  <br>
+                </div>
+                <input type="file" id="file2" class="form-control" onchange="imagem2()">
+              </div>
+             <div id="facesContainer" hidden>
+                <canvas id="canvas" style="width:240px"/>
+              </div>  
+          </div>
+            <div class="row">   
+            <div class="w3-row-padding" style="margin:0 -16px">
+                <div class="w3-third">
+                <div style="height:330px" class="w3-card-2 w3-container w3-yellow w3-margin-bottom">
+                <div class="img-overlay-wrap svg-container" id="svg">
+                    <button id="img1" class="w3-button  w3-round-large" type="button"></button>
+                    <img src="" id="imagenova"  style="border-radius: 5px;width:250px">  
+                </div>
+                </div>
+            </div>
+                <div class="w3-third">
+                <div style="height:330px" class="w3-card-2 w3-container w3-margin-bottom">
+                    <div class="img-overlay-wrap svg-container" id="svg3">
+                    <img src="" id="imagenova3"  style="border-radius: 5px;width:250px">
+                    <svg>
+                    </svg>
+                        <svg>
+                        </svg>
+                    </div>
+                </div>
+                </div>
+                <div class="w3-third">
+                    <div style="height:330px" class="w3-card-4 w3-container w3-yellow w3-margin-bottom">
+                        <div class="img-overlay-wrap svg-container" id="svg2">
+                        <button id="img22" class="w3-button  w3-round-large" type="button"></button>
+                        <img src="" id="imagenova2"  style="border-radius: 5px;width:250px">   
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <br><br>
+            </div> 
+            </div>
+      </section>
+
+    </main>
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/scripts.js"></script>
+    <script src="js/face-api.js"></script>
+    <script src="js/iniciar.js"></script>
+    <script src="js/emocoes.js"></script>
+    <script src="js/comparar.js"></script>
+      </body>
+    </html>
