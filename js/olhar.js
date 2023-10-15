@@ -14,12 +14,16 @@ let detections;
 let resizedDetections;
 let canvas = document.createElement("canvas");  
 resultsContainer.appendChild(canvas);
+let tempoDeSelecao = 2000; 
+let tempoInicial;
+let botaoSelecionado = null;
+let extractPointsInterval;
+let detectLandmarksInterval;
 
 let startCameraInterval;
-    detectEmotionsButton.disabled = true;
-    detectLandmarksButton.disabled = true;
-    detectAgeButton.disabled = true;
     extractPointsButton.disabled = true;
+
+
     startCameraButton.addEventListener("change", async (event) => {
     if (event.target.checked) {
         detectEmotionsButton.disabled = false;
@@ -27,9 +31,7 @@ let startCameraInterval;
         detectAgeButton.disabled = false;
         extractPointsButton.disabled = false;
 
-        detectEmotionsButton.addEventListener("change", detectEmotionsButton);
-        detectLandmarksButton.addEventListener("change", detectLandmarksButton);
-        detectAgeButton.addEventListener("change", detectAgeButton);
+        
         extractPointsButton.addEventListener("change", extractPointsButton);
         resultsContainer.innerHTML = "";
         video = document.createElement("video");
@@ -47,21 +49,13 @@ let startCameraInterval;
         resultsContainer.appendChild(video);
         resultsContainer.appendChild(canvas);
     } else {
-        detectEmotionsButton.checked = false;
-        detectEmotionsButton.disabled = true;
-        detectLandmarksButton.checked = false;
-        detectLandmarksButton.disabled = true;
-        detectAgeButton.checked = false;
-        detectAgeButton.disabled = true;
         extractPointsButton.checked = false;
         extractPointsButton.disabled = true;
         detectEmotionsButton.removeEventListener("change", detectEmotionsButton);
         detectLandmarksButton.removeEventListener("change", detectLandmarksButton);
         detectAgeButton.removeEventListener("change", detectAgeButton);
         extractPointsButton.removeEventListener("change", extractPointsButton);
-        clearInterval(detectLandmarksInterval);
-        clearInterval(detectEmotionsInterval);
-        clearInterval(detectAgeInterval);
+ 
         clearInterval(extractPointsInterval);
         resultsContainer.innerHTML = "";
         video.srcObject = null;
@@ -71,116 +65,15 @@ let startCameraInterval;
     }
     });
 
-  let detectEmotionsInterval;
-  detectEmotionsButton.addEventListener("change", async (event) => {
-  if (event.target.checked) {
-    detectEmotionsInterval = setInterval(async () => {
-        canvas = document.getElementById("landmarkCanvas");
-        displaySize = { width: video.width, height: video.height};
-        faceapi.matchDimensions(canvas,displaySize);
-        detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
-        resizedDetections = faceapi.resizeResults(detections, displaySize);
-        resultsContainer.innerHTML = "";
-        resultsContainer.appendChild(video);
-        resultsContainer.appendChild(canvas);
-        detections.forEach((result) => {
-            if (result.expressions) {
-            const happy = result.expressions.Feliz || 0;
-            const sad = result.expressions.Triste || 0;
-            const angry = result.expressions.Raiva || 0;
-            const disgusted = result.expressions.Nojo || 0;
-            const fear = result.expressions.Medo || 0;
-            const surprise = result.expressions.Surpreso || 0;
-            const neutr = result.expressions.Neutro || 0;
-            const card = document.createElement("div");
-            card.innerHTML = `<h3>Emoções detectadas:</h3> <ul> 
-            <li>Neutro: ${neutr.toFixed(2)}</li> 
-            <li>Felicidade: ${happy.toFixed(2)}</li> 
-            <li>Tristeza: ${sad.toFixed(2)}</li> 
-            <li>Raiva: ${angry.toFixed(2)}</li> 
-            <li>Desprezo: ${disgusted.toFixed(2)}</li> 
-            <li>Medo: ${fear.toFixed(2)}</li> 
-            <li>Surpresa: ${surprise.toFixed(2)}</li> 
-            </ul>`;
-            resultsContainer.appendChild(card);
-            } else {
-            console.error("Nenhuma emoção detectada.");
-            }
-        }); 
-          }, 500)
-        } else {
-        clearInterval(detectEmotionsInterval);
-      }
-    });
-    
-        let detectLandmarksInterval;
-        function unite(leftEyebrow, rightEyebrow) {
-            const united = [];
-            for (const point of leftEyebrow) { united.push(point); }
-            for (const point of rightEyebrow) {united.push(point); }
-            return united;
-          }
-        detectLandmarksButton.addEventListener("change", async (event) => {
-            if (event.target.checked) {
-              detectLandmarksInterval = setInterval(async () => {
-                canvas = document.getElementById("landmarkCanvas");
-                displaySize = { width: video.width, height: video.height};
-                faceapi.matchDimensions(canvas,displaySize);
-                detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
-                resizedDetections = faceapi.resizeResults(detections, displaySize);
-                canvas.getContext('2d').clearRect(0,0,canvas.width, canvas.height);
-                for (const detection of resizedDetections) {
-                  const landmarks = detection.landmarks;
-                  const leftEyebrow = landmarks.getLeftEyeBrow();
-                  const rightEyebrow = landmarks.getRightEyeBrow();
-                  faceapi.draw.drawFaceLandmarks(canvas, detection, {
-                    drawLines: true,
-                    color: 'red',
-                    landmarkIndices: leftEyebrow.concat(rightEyebrow)
-                  });
-                  faceapi.draw.drawFaceLandmarks(canvas, detection, {
-                    drawLines: true,
-                    color: 'yellow',
-                    landmarkIndices: leftEyebrow.concat(rightEyebrow)
-                  });
-                }
-                resultsContainer.innerHTML = "";
-                resultsContainer.appendChild(video);
-                resultsContainer.appendChild(canvas);
-              }, 500)
-            } else {
-              clearInterval(detectLandmarksInterval);
-            }
-          });
-          
-    let detectAgeInterval;
-    detectAgeButton.addEventListener("change", async (event) => {
-      if (event.target.checked) {
-        detectAgeInterval = setInterval(async () => {
-        canvas = document.getElementById("landmarkCanvas");
-        displaySize = { width: video.width, height: video.height};
-        faceapi.matchDimensions(canvas,displaySize);
-        detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withAgeAndGender();
-        resizedDetections = faceapi.resizeResults(detections, displaySize);
-        resultsidade.innerHTML = "";
-        resultsidade.appendChild(video);
-        resultsidade.appendChild(canvas);
-        detections.forEach((result) => {
-          if (result.age) {
-              const card = document.createElement("div");
-              card.innerHTML = `<h3>Idade detectada:</h3> <p>${result.age.toFixed(0)} anos</p>`;
-              resultsidade.appendChild(card);
-              } else {
-              console.error("Nenhuma idade detectada.");
-          }
-        });
-      }, 500)
-    } else {
-        clearInterval(detectAgeInterval);
-    }
-    });
 
-    let extractPointsInterval;
+
+    function unite(leftEyebrow, rightEyebrow) {
+        const united = [];
+        for (const point of leftEyebrow) { united.push(point); }
+        for (const point of rightEyebrow) {united.push(point); }
+        return united;
+        }
+        
     extractPointsButton.addEventListener("change", async (event) => {
       if (event.target.checked) {
         extractPointsInterval = setInterval(async () => {
@@ -208,10 +101,6 @@ let startCameraInterval;
     }
 
 
-
-let tempoDeSelecao = 2000; 
-let tempoInicial;
-let botaoSelecionado = null;
 function calcularPontoDeOlhar(face) {
   const olhoEsquerdo = face.landmarks.positions.slice(36, 42);
   const olhoDireito = face.landmarks.positions.slice(42, 48);
@@ -245,8 +134,6 @@ function verificarBotaoSobOlhar(pontoFocal) {
   const botoes = document.querySelectorAll('.eye-button'); 
   for(const botao of botoes) {
       const rect = botao.getBoundingClientRect();
-      console.log(rect.left)
-      console.log(pontoFocal.x)
       if (
           pontoFocal.x >= rect.left && pontoFocal.x <= rect.right &&
           pontoFocal.y >= rect.top && pontoFocal.y <= rect.bottom
@@ -259,11 +146,25 @@ function verificarBotaoSobOlhar(pontoFocal) {
   return null; // Retornará null se nenhum botão estiver sob o olhar
 }
 
-    function olhoEstaSobreBotao(pontoFocal, botao) {
-      return pontoFocal._x > botao.x && pontoFocal._x < botao.x + botao.width && pontoFocal._y > botao.y && pontoFocal._y < botao.y + botao.height;
-    }
-   
+function createOverlayElement() {
+    const overlay = document.createElement("div");
+    overlay.style.position = "absolute";
+    overlay.style.border = "2px solid #FF0000";
+    overlay.style.width = "30px"; 
+    overlay.style.height = "20px"; 
+    document.body.appendChild(overlay);
+    return overlay;
+}
 
+function updateOverlayPosition(overlay, x, y) {
+    overlay.style.left = x - 25 + "px"; // centralizando o overlay no eixo X
+    overlay.style.top = y - 20 + "px";  // centralizando o overlay no eixo Y
+}
+function removeOverlayElement(overlay) {
+    document.body.removeChild(overlay);
+}
+
+const eyeOverlay = createOverlayElement();  
     document.querySelectorAll('.eye-button').forEach(botao => {
         botao.addEventListener('mouseenter', () => {
             tempoInicial = new Date().getTime();
@@ -278,9 +179,10 @@ function verificarBotaoSobOlhar(pontoFocal) {
             console.log('Botão selecionado!');
             tempoInicial = null;
             // Adicione a lógica para lidar com a seleção do botão aqui
+           
         }
     }, 100); 
-
+    
     for (const face of resizedDetections) {
       //const pontoFocal = calcularPontoDeOlhar(face);
       
@@ -313,19 +215,26 @@ function verificarBotaoSobOlhar(pontoFocal) {
             context.fillStyle = "rgba(255, 255, 255, 0)";
             context.fill();
             context.closePath();
+            let rect = canvas.getBoundingClientRect();
             let pontoFocal = {
-              x: (eyeBox.center.x ) / 2,
-              y: (eyeBox.center.y ) / 2
-          };
+                x: eyeBox.center.x + rect.left,
+                y: eyeBox.center.y + rect.top
+            };
             const botaoSobOlhar = verificarBotaoSobOlhar(pontoFocal);
+            
+            updateOverlayPosition(eyeOverlay, eyeBox.center.x, eyeBox.center.y);
+            
             console.log(botaoSobOlhar)
+            console.log(botaoSelecionado)
           if (botaoSobOlhar) {
+            
             if (botaoSelecionado !== botaoSobOlhar) {
+                removeOverlayElement(eyeOverlay);
                 botaoSelecionado = botaoSobOlhar;
                 tempoInicial = new Date().getTime();
             } else if (new Date().getTime() - tempoInicial > tempoDeSelecao) {
                 console.log('Botão selecionado:', botaoSelecionado.id);
-                // Adicione a lógica para lidar com a seleção do botão aqui...
+                alert(botaoSelecionado.id)
             }
         } else {
             botaoSelecionado = null;
