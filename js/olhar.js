@@ -1,13 +1,9 @@
-const form = document.querySelector("#detectar-emocoes-form");
+
 let resultsContainer = document.querySelector("#detectar-emocoes-results");
 let resultsidade = document.querySelector("#detectar-emocoes-idade");
 let pontos = document.querySelector("#pontos");
-const sourceSwitch = document.getElementById("detectar-emocoes-source-switch");
 let stream;
 let startCameraButton = document.getElementById("start-camera-button");
-let detectEmotionsButton = document.getElementById("detect-emotions-button");
-let detectLandmarksButton = document.getElementById("detect-landmarks-button");
-let detectAgeButton = document.getElementById("detect-age-button");
 let extractPointsButton = document.getElementById("extract-points-button");
 let displaySize;
 let detections;
@@ -19,19 +15,14 @@ let tempoInicial;
 let botaoSelecionado = null;
 let extractPointsInterval;
 let detectLandmarksInterval;
-
+let videox = document.getElementById("video");
 let startCameraInterval;
     extractPointsButton.disabled = true;
 
 
     startCameraButton.addEventListener("change", async (event) => {
     if (event.target.checked) {
-        detectEmotionsButton.disabled = false;
-        detectLandmarksButton.disabled = false;
-        detectAgeButton.disabled = false;
         extractPointsButton.disabled = false;
-
-        
         extractPointsButton.addEventListener("change", extractPointsButton);
         resultsContainer.innerHTML = "";
         video = document.createElement("video");
@@ -48,12 +39,10 @@ let startCameraInterval;
         video.srcObject = stream;
         resultsContainer.appendChild(video);
         resultsContainer.appendChild(canvas);
+       
     } else {
         extractPointsButton.checked = false;
         extractPointsButton.disabled = true;
-        detectEmotionsButton.removeEventListener("change", detectEmotionsButton);
-        detectLandmarksButton.removeEventListener("change", detectLandmarksButton);
-        detectAgeButton.removeEventListener("change", detectAgeButton);
         extractPointsButton.removeEventListener("change", extractPointsButton);
  
         clearInterval(extractPointsInterval);
@@ -65,7 +54,25 @@ let startCameraInterval;
     }
     });
 
-
+    let resetTimer;
+    let currentIndex = 0; 
+     function piscar() {
+        const btnOptions = document.querySelectorAll('.eye-button');
+        btnOptions[currentIndex].classList.remove('selected'); 
+        currentIndex = (currentIndex + 1) % btnOptions.length;  
+        btnOptions[currentIndex].classList.add('selected');  
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => {
+        if(btnOptions[currentIndex].innerText!="#"){
+        document.getElementById("text").innerHTML += btnOptions[currentIndex].innerText;
+        }else{
+        document.getElementById("text").innerHTML ="";
+        }
+            btnOptions[currentIndex].classList.remove('selected');
+            currentIndex = 0; 
+            btnOptions[currentIndex].classList.add('selected'); 
+        }, 3000); 
+    }
 
     function unite(leftEyebrow, rightEyebrow) {
         const united = [];
@@ -84,21 +91,32 @@ let startCameraInterval;
         resizedDetections = faceapi.resizeResults(detections, displaySize);
         resultsContainer.appendChild(video);
         resultsContainer.appendChild(canvas);
+        
+        
     function getBoxFromPoints(points) {
-        const box = { bottom: -Infinity, left: Infinity, right: -Infinity, top: Infinity,
-          get center() {return { x: this.left + this.width / 2, y: this.top + this.height / 2, };
-        },
-        get height() { return this.bottom - this.top; },
-        get width() {  return this.right - this.left; },
-        };
-        for (const point of points) {
-            box.left = Math.min(box.left, point.x);
-            box.right = Math.max(box.right, point.x);
-            box.bottom = Math.max(box.bottom, point.y);
-            box.top = Math.min(box.top, point.y);
+    let minX = points[0].x;
+    let minY = points[0].y;
+    let maxX = points[0].x;
+    let maxY = points[0].y;
+    
+    points.forEach(point => {
+        minX = Math.min(minX, point.x);
+        minY = Math.min(minY, point.y);
+        maxX = Math.max(maxX, point.x);
+        maxY = Math.max(maxY, point.y);
+    });
+
+    return {
+        x: minX,
+        y: minY,
+        width: maxX - minX,
+        height: maxY - minY,
+        center: {
+            x: (minX + maxX) / 2,
+            y: (minY + maxY) / 2
         }
-        return box;
-    }
+    };
+}
 
 
 function calcularPontoDeOlhar(face) {
@@ -139,64 +157,20 @@ function verificarBotaoSobOlhar(pontoFocal) {
           pontoFocal.y >= rect.top && pontoFocal.y <= rect.bottom
           
       ) {
-        console.log(pontoFocal)
-          return botao; // Retornará o botão que está sob o olhar
+        
+          return botao; 
       }
   }
-  return null; // Retornará null se nenhum botão estiver sob o olhar
+  return null; 
 }
 
-function createOverlayElement() {
-    const overlay = document.createElement("div");
-    overlay.style.position = "absolute";
-    overlay.style.border = "2px solid #FF0000";
-    overlay.style.width = "30px"; 
-    overlay.style.height = "20px"; 
-    document.body.appendChild(overlay);
-    return overlay;
-}
 
-function updateOverlayPosition(overlay, x, y) {
-    overlay.style.left = x - 25 + "px"; // centralizando o overlay no eixo X
-    overlay.style.top = y - 20 + "px";  // centralizando o overlay no eixo Y
-}
-function removeOverlayElement(overlay) {
-    document.body.removeChild(overlay);
-}
-
-const eyeOverlay = createOverlayElement();  
-    document.querySelectorAll('.eye-button').forEach(botao => {
-        botao.addEventListener('mouseenter', () => {
-            tempoInicial = new Date().getTime();
-        });
-        botao.addEventListener('mouseleave', () => {
-            tempoInicial = null;
-        });
-    });
-
-    setInterval(() => {
-        if(tempoInicial && new Date().getTime() - tempoInicial > tempoDeSelecao) {
-            console.log('Botão selecionado!');
-            tempoInicial = null;
-            // Adicione a lógica para lidar com a seleção do botão aqui
-           
-        }
-    }, 100); 
-    
     for (const face of resizedDetections) {
-      //const pontoFocal = calcularPontoDeOlhar(face);
-      
         const features = {
-            mandibula: face.landmarks.positions.slice(0, 17),
-            sobrancelhaesquerda: face.landmarks.positions.slice(17, 22),
-            sobrancelhaDireita: face.landmarks.positions.slice(22, 27),
-            Pontenasal: face.landmarks.positions.slice(27, 31),
-            nariz: face.landmarks.positions.slice(31, 36),
             olhoEsquerdo: face.landmarks.positions.slice(36, 42),
             olhoDireito: face.landmarks.positions.slice(42, 48),
-            labioExterno: face.landmarks.positions.slice(48, 60),
-            labiointerno: face.landmarks.positions.slice(60),
         };
+        
         const pre = document.createElement("pre");
         pre.innerText = JSON.stringify(features, null, 2);
         pontos.innerHTML = "";
@@ -207,14 +181,7 @@ const eyeOverlay = createOverlayElement();
             const fontSize = 20;
             const context = canvas.getContext("2d");
             context.lineWidth = 2;
-            context.fillStyle = "#FF0000";
-            context.beginPath();
-            context.fillStyle = "rgba(20,30,22,0.5)";
-            context.strokeRect(eyeBox.center.x-10, eyeBox.center.y-10, 30, 20, 30 );
-            context.arc(eyeBox.center.x, eyeBox.center.y, 4, 0, 2 * Math.PI);
-            context.fillStyle = "rgba(255, 255, 255, 0)";
-            context.fill();
-            context.closePath();
+            context.beginPath()
             let rect = canvas.getBoundingClientRect();
             let pontoFocal = {
                 x: eyeBox.center.x + rect.left,
@@ -222,24 +189,31 @@ const eyeOverlay = createOverlayElement();
             };
             const botaoSobOlhar = verificarBotaoSobOlhar(pontoFocal);
             
-            updateOverlayPosition(eyeOverlay, eyeBox.center.x, eyeBox.center.y);
-            
-            console.log(botaoSobOlhar)
-            console.log(botaoSelecionado)
           if (botaoSobOlhar) {
-            
+            piscar();
+            context.fillStyle = "rgba(0, 255, 0, 0.5)"; // Verde
+            context.strokeStyle = "#00FF00"; // Verde
             if (botaoSelecionado !== botaoSobOlhar) {
-                removeOverlayElement(eyeOverlay);
+                //removeOverlayElement(eyeOverlay);
                 botaoSelecionado = botaoSobOlhar;
                 tempoInicial = new Date().getTime();
-            } else if (new Date().getTime() - tempoInicial > tempoDeSelecao) {
-                console.log('Botão selecionado:', botaoSelecionado.id);
-                alert(botaoSelecionado.id)
-            }
-        } else {
-            botaoSelecionado = null;
-            tempoInicial = null;
-        }
+            // } else if (new Date().getTime() - tempoInicial > tempoDeSelecao) {
+            //     console.log('Botão selecionado:', botaoSelecionado.id);
+            //     alert(botaoSelecionado.id)
+                
+             }
+        } 
+        else {
+             context.fillStyle = "rgba(20, 30, 22, 0.5)"; // Sua cor original
+        context.strokeStyle = "#FF0000"; // Vermelho
+    }
+    
+    context.strokeRect(eyeBox.center.x-10, eyeBox.center.y-10, 30, 20);
+    context.fillRect(eyeBox.center.x-10, eyeBox.center.y-10, 30, 20);
+    context.arc(eyeBox.center.x, eyeBox.center.y, 4, 0, 2 * Math.PI);
+    context.fill();
+    context.closePath();
+        
         }
     }
 }, 500)

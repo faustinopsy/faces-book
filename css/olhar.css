@@ -1,0 +1,231 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+ 
+  
+  nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+  }
+  
+  nav li {
+    margin-right: 10px;
+  }
+  
+  nav a {
+    color: #fff;
+    text-decoration: none;
+  }
+  
+
+  .active {
+    font-weight: bold;
+    color: #e30000;
+  }
+
+  form {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    }
+    
+    label, input[type="file"], input[type="checkbox"], input[type="submit"] {
+    width: 49%;
+    text-align: center;
+    margin: 10px 0;
+    }
+    #detectar-emocoes-results {
+        top: 190px;
+        left: 370px;
+      }
+      input[type="button"] {
+        display: none;
+      }
+      
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+      }
+      
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+      }
+      
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+      }
+      
+      input:checked + .slider {
+        background-color: #2196F3;
+      }
+      
+      input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+      }
+      
+      input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+      }
+      
+      .slider.round {
+        border-radius: 34px;
+      }
+      
+      .slider.round:before {
+        border-radius: 50%;
+      }
+      
+      input[type="submit"] {
+        background-color: #4CAF50; /* Fundo verde */
+        color: white; /* Cor da fonte branca */
+        padding: 14px 20px; /* Espaçamento interno */
+        border: none; /* Sem borda */
+        border-radius: 4px; /* Arredondamento de borda */
+        cursor: pointer; /* Cursor em forma de mão */
+        font-size: 16px; /* Tamanho da fonte */
+        width: 120px;
+      }
+      
+      input[type="submit"]:hover {
+        background-color: #3e8e41; /* Mudança de cor ao passar o mouse */
+      }
+      
+      #start-camera-button.slider:before {
+        content: "";
+        background-image: url('./sun.png');
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        color: rgb(5, 2, 2);
+        text-align: center;
+        line-height: 26px;
+        font-size: 16px;
+      }
+      
+      #start-camera-button:checked + .slider:before {
+        background-image: url('./mon.png');
+        background-size: 26px 26px; /* altura e largura que você deseja */
+        background-repeat: no-repeat;
+      }
+      
+      #start-camera-button + .slider:before {
+        background-image: url('./sun.png');
+        background-size: 26px 26px; /* altura e largura que você deseja */
+        background-repeat: no-repeat;
+      }
+
+  #extract-points-button:checked + .slider:before {
+    content: "\f1c0";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    color: white;
+    text-align: center;
+    line-height: 26px;
+    font-size: 16px;
+  }
+  #extract-points-button:checked + .slider:before {
+    background-image: url('./jso.png');
+    background-size: 26px 26px; /* altura e largura que você deseja */
+    background-repeat: no-repeat;
+  }
+  
+  #extract-points-button + .slider:before {
+    background-image: url('./jso1.png');
+    background-size: 26px 26px; /* altura e largura que você deseja */
+    background-repeat: no-repeat;
+  }   
+  .eye-button {
+    width: 50px;
+    height: 50px;
+    margin: 10px;
+    background: #5753535f;
+    color:white;
+    font-size: 22px;
+}
+
+#camera-card, video, canvas {
+
+
+  width: 600px;
+  height: 350px;
+  position: absolute;
+  top: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 1000;
+}
+video {
+  width: 100%;
+  height:  100%;
+}
+
+canvas {
+  width:  100%;
+  height:  100%;
+}
+#camera-card {
+  left: 200px;
+}
+
+#canvas-botoes {
+  left: 200px;
+}
+#canvas-botoes {
+  width: 600px;
+  height: 350px;
+  position: fixed;
+  top: 60px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  background: #ffffff4a;
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 1200;
+}
+#detectar-emocoes-form {
+  margin-top: 170px;
+}
+#landmarkCanvas {
+  background: none;
+  z-index: 1500;
+}
+
+.btnGroup {
+  margin-top: 20px;
+}
+
+
+.selected {
+  background-color: lightblue;
+}
